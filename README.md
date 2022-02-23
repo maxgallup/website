@@ -21,3 +21,6 @@ Simple personal webpage mainly to show contact information and CV. Additionally 
 * expose bind point for HTML content
 * deploy with ansible to self hosted homeserver
 
+# notes
+* font: Helvetica Neue
+
