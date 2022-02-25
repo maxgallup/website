@@ -1,8 +1,7 @@
 #[macro_use] extern crate rocket;
 
-use rocket::response::status::NotFound;
+
 use rocket::Request;
-use rocket::http::Status;
 use rocket_dyn_templates::{Template};
 use std::{path::PathBuf, time::SystemTime};
 use std::fs;
@@ -19,15 +18,28 @@ struct Content {
     content: String,
 }
 
+#[get("/")]
+fn start() -> Option<Template> {
 
+    let markdown = match fs::read_to_string("public/index") {
+        Ok(markdown) => markdown,
+        Err(_e) => return None,
+    };
+
+    let context = Content {
+        title: format!("TODO: remove this"),
+        date: format!("TODO remove this"),
+        content: markdown::to_html(&markdown),
+    };
+
+    Some(Template::render("index", &context))
+}
 
 #[get("/<name..>")]
-fn index(name: PathBuf) -> Option<Template> {
+fn get_content(name: PathBuf) -> Option<Template> {
     
-    println!(">>>> {:?}", name);
     let file_name : &str = name.to_str().unwrap();
-    let file_name = format!("{}{}", "content/", file_name);
-    println!(">>>> {}", file_name);
+    let file_name = format!("{}{}", "public/content/", file_name);
 
     let markdown = match fs::read_to_string(&file_name) {
         Ok(markdown) => markdown,
@@ -66,7 +78,7 @@ pub fn not_found(req: &Request<'_>) -> Template {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index])
+        .mount("/", routes![start, get_content])
         .register("/", catchers![not_found])
         .attach(Template::fairing())
 }
