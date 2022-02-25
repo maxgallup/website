@@ -1,5 +1,8 @@
 #[macro_use] extern crate rocket;
 
+use rocket::response::status::NotFound;
+use rocket::Request;
+use rocket::http::Status;
 use rocket_dyn_templates::{Template};
 use std::{path::PathBuf, time::SystemTime};
 use std::fs;
@@ -19,20 +22,19 @@ struct Content {
 
 
 #[get("/<name..>")]
-fn index(name: PathBuf) -> Template {
+fn index(name: PathBuf) -> Option<Template> {
     
     println!(">>>> {:?}", name);
-    let file_name : &str = name.to_str().unwrap_or("content/error/default");
+    let file_name : &str = name.to_str().unwrap();
     let file_name = format!("{}{}", "content/", file_name);
     println!(">>>> {}", file_name);
 
     let markdown = match fs::read_to_string(&file_name) {
         Ok(markdown) => markdown,
-        Err(_e) => format!("# Woops... content unavailable 😞"),
+        Err(_e) => return None,
     };
 
-    let seconds = fs::metadata(&file_name)
-        .unwrap()
+    let seconds = fs::metadata(&file_name).unwrap()
         .modified().unwrap_or(SystemTime::now())
         .duration_since(SystemTime::UNIX_EPOCH).unwrap()
         .as_secs().try_into().unwrap();
@@ -46,7 +48,17 @@ fn index(name: PathBuf) -> Template {
         content: markdown::to_html(&markdown),
     };
 
-    Template::render("index", &context)
+    Some(Template::render("index", &context))
+}
+
+#[catch(404)]
+pub fn not_found(req: &Request<'_>) -> Template {
+    let context = Content {
+        title: format!("TODO: Some error title"),
+        date: format!("TODO: some date (turn this into option)"),
+        content: req.to_string(),
+    };
+    Template::render("error/404", &context)
 }
 
 
@@ -55,6 +67,7 @@ fn index(name: PathBuf) -> Template {
 fn rocket() -> _ {
     rocket::build()
         .mount("/", routes![index])
+        .register("/", catchers![not_found])
         .attach(Template::fairing())
 }
 
