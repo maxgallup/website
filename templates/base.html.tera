@@ -37,9 +37,10 @@
     <nav id="nav">
         <ul id="navlist" class="navitem">
             <li class="navitem" ><a href="/" id="home">home</a></li>
-            <li class="navitem" ><a href="/articles" id="articles">articles</a></li>
+            <li class="navitem"><a href="/cv" target="_blank">my CV</a></li>
             <li class="navitem" ><a href="/recipes" id="recipes">recipes</a></li>
-            <li class="navitem" ><a href="/projects" id="recipes">projects</a></li>
+            <li class="navitem" ><a href="/articles" id="articles">articles</a></li>
+            <li class="navitem" ><a href="/projects" id="projects">projects</a></li>
             <li class="navitem" ><a href="/isitvegan" id="isitvegan">plants?</a></li>
             <li class="navitem"><a href="https://github.com/maxgallup/" target="_blank">github</a></li>
         </ul>
@@ -61,11 +62,7 @@
 
   <footer>
         <div>
-            <span>
-                <a href="https://github.com/maxgallup" target="_blank"> github </a>
-                <span> | </span>
-                <a href="https://www.linkedin.com/in/max-gallup-7b4481210"> linkedIn </a>
-            </span>
+            <span><i>No cookies no bullshit</i> 🤮🍪 </span>
         </div>
     </footer>
 
