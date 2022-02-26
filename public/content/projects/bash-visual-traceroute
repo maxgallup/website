@@ -1,9 +1,6 @@
 # Visualize Traceroute with Simple Shell Scripting
-06/04/2021
 
 [This simple shell script](https://github.com/maxgallup/bash-visual-traceroute) utilizes thrid-party services to create a geographical map that shows the route your traffic takes when accessing a public server. It uses `traceroute` to find the IP addresses of the intermediate and final devices. Then it looks up the geographical coordinates of these IP address using [ipinfo](https://ipinfo.io/1.1.1.1). Finally it makes a request to the [MapQuest API](https://developer.mapquest.com/) with the coordinates to draw a path between the origin and destination. 
-
-<br>
 
 ## traceroute
 Here we create an array that holds all the IP address returned by traceroute. The `-I` option is set to use ICMP echo instead of UDP, which seems to work better at times. after that the output is piped into `cut` and `sed` to filter out the IP address and get rid of surrounding parentheses. 
@@ -12,7 +9,6 @@ Here we create an array that holds all the IP address returned by traceroute. Th
 DEVICES=($(traceroute -I $TARGET | cut -d " " -f 5 | sed 's/.//;s/.$//'))
 ```
 
-<br>
 
 ## ipinfo
 We create another array that holds the geographical coordinates of each IP address. Again the output is filtered to get just the information needed with `grep` and `cut`.
@@ -21,7 +17,6 @@ for i in ${!DEVICES[@]}; do
     LOCATIONS+=("$(curl -s https://ipinfo.io/${DEVICES[i]} | grep loc | cut -d<br>" -f 4 )")
 done
 ```
-<br>
 
 ## MapQuest
 The following API request returns a map using poly lines to connect the individual coordinates (LONGITUDE,LATITUDE) and finally outputs a png image of 800 by 800 pixels.
