@@ -16,13 +16,15 @@
         /* --font-fam: 'mainFont'; */
         --font-fam-bold: 'bold';
         --font-fam-regular: 'regular';
-        --backrgound-color: white;
-        --font-color: rgb(202, 219, 223);
-        --nav-color: #74F2CE;
-        --nav-font-color: #232B32;
-        --code-background-color: #303941;
-        --footer-color:  rgb(235, 240, 240);
-        --card-background-color: rgb(227, 227, 227);
+        --background-color: #181A1B;
+        --font-color: #E8E6E3;
+        --nav-color: #0C8269;
+        --nav-font-color: #E8E6E3;
+        --code-background-color: #181A1B;
+        --footer-color:  #1F2929;
+        --card-background-color: #282B2D;
+        --hover-color: #57F2C6;
+        --link-color: #A1F4FC;
     }
 
     * {
@@ -30,6 +32,12 @@
         margin: 0;
         background-origin: border-box;
         font-family: 'regular';
+        
+    }
+
+    body {
+        color: var(--font-color);
+        background: var(--background-color);
     }
 
     h1, h2, h3, h4 {
@@ -50,7 +58,15 @@
         z-index: 1;
     }
 
+    a {
+        color: var(--link-color);
+        text-decoration: none;
+    }
 
+    a:hover {
+        color: var(--hover-color);
+        
+    }
 
     nav {
         position: fixed;
@@ -86,9 +102,8 @@
     }
 
     #navlist a:hover {
-        color: white;
+        color: var(--hover-color);
     }
-
 
     .card {
         padding: 1rem 1rem;
@@ -101,34 +116,33 @@
     }
 
     .card li a {
-        /* color: rgb(60, 82, 124); */
-        color: #287972;
         text-decoration: none;
         font-family: 'bold';
     }
 
     .card li a:hover {
         /* color:rgb(106, 136, 155); */
-        color: #4b9e97;
+        /* color: #4b9e97; */
         text-decoration: none;
     }
-    
+
+    table {
+        width: 100%;
+    }
+
+    #table-date {
+        text-align: right;
+    }
+
+    tr:hover {
+        color: var(--hover-color);
+    }
 
     footer div {
         text-align: center;
         background-color: var(--footer-color);
         font-size: 1.6rem;
         padding: 4vh;
-    }
-
-    footer div a {
-        color: rgb(40, 54, 80);
-        text-decoration: none;
-    }
-
-    footer div a:hover {
-        color:rgb(106, 136, 155);
-        text-decoration: none;
     }
 
     

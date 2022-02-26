@@ -4,10 +4,17 @@
 
     <h1>{{ title }}</h1>
 
-    <ul>
-        {% for i in items %}
-            <li>{{ i.title }} {{ i.date }}</li>
-        {% endfor %}
-    </ul>
+
+    <table>
+    {% for i in items %}
+        <tr>
+            
+                <td><a href="{{ title }}/{{ i.title}}">{{ i.title }}</a></td>
+                <td id="table-date">{{ i.date }}</td>
+            
+        </tr>
+    {% endfor %}
+
+    </table>
 
 {% endblock content %}
