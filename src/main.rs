@@ -1,11 +1,14 @@
 #[macro_use] extern crate rocket;
 
 
-
-use rocket::Request;
-use rocket_dyn_templates::{Template};
 use std::{time::SystemTime};
 use std::fs;
+use std::path::Path;
+
+
+use rocket_dyn_templates::{Template};
+use rocket::Request;
+use rocket::fs::NamedFile;
 
 use serde::{Serialize};
 
@@ -14,8 +17,8 @@ use chrono::naive::NaiveDateTime;
 
 #[derive(Serialize)]
 struct Content {
-    title: String,
-    date: String,
+    title: Option<String>,
+    date: Option<String>,
     content: Option<String>,
 }
 
@@ -38,7 +41,7 @@ fn get_date(path: &str) -> String {
     .as_secs().try_into().unwrap();
 
     NaiveDateTime::from_timestamp(seconds, 0)
-    .format("%Y-%m-%d").to_string()
+    .format("%d-%m-%Y").to_string()
 }
 
 
@@ -52,12 +55,18 @@ fn start_page() -> Option<Template> {
     };
 
     let context = Content {
-        title: format!("TODO: remove this"),
-        date: format!("TODO remove this"),
+        title: Some("@maxgallup".to_string()),
+        date: None,
         content: Some(markdown::to_html(&markdown)),
     };
 
     Some(Template::render("content", &context))
+}
+
+// --- CV PAGE ---
+#[get("/cv")]
+async fn cv_page() -> Option<NamedFile> {
+    NamedFile::open(Path::new("public/cv.pdf")).await.ok()
 }
 
 // --- CONTENT DIRECTORIES ---
@@ -91,6 +100,7 @@ fn get_content_dir(dir: String) -> Option<Template> {
     Some(Template::render("content-dir", &base))
 }
 
+// --- CONTENT ---
 #[get("/<dir>/<name>")]
 fn get_content(dir: String, name: String) -> Option<Template> {
 
@@ -102,8 +112,8 @@ fn get_content(dir: String, name: String) -> Option<Template> {
     };
 
     let context = Content {
-        title: format!("TODO: Some title"),
-        date: get_date(&path),
+        title: Some(format!("{}/{}", dir, name)),
+        date: Some(get_date(&path)),
         content: Some(markdown::to_html(&markdown)),
     };
 
@@ -112,12 +122,14 @@ fn get_content(dir: String, name: String) -> Option<Template> {
 
 #[catch(404)]
 pub fn not_found(req: &Request<'_>) -> Template {
+
     let context = Content {
-        title: format!("TODO: Some error title"),
-        date: format!("TODO: some date (turn this into option)"),
-        content: Some(req.to_string()),
+        title: Some("404 - Not Found".to_string()),
+        date: None,
+        content: Some(req.uri().to_string()),
     };
-    Template::render("error/404", &context)
+
+    Template::render("404", &context)
 }
 
 
@@ -125,27 +137,7 @@ pub fn not_found(req: &Request<'_>) -> Template {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![start_page, get_content, get_content_dir])
+        .mount("/", routes![start_page, cv_page, get_content, get_content_dir])
         .register("/", catchers![not_found])
         .attach(Template::fairing())
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
