@@ -1,0 +1,13 @@
+{% extends "base" %}
+
+{% block content %}
+
+    <h1>{{ title }}</h1>
+
+    <ul>
+        {% for i in items %}
+            <li>{{ i.title }} {{ i.date }}</li>
+        {% endfor %}
+    </ul>
+
+{% endblock content %}

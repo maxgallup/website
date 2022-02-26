@@ -1,9 +1,10 @@
 #[macro_use] extern crate rocket;
 
 
+
 use rocket::Request;
 use rocket_dyn_templates::{Template};
-use std::{path::PathBuf, time::SystemTime};
+use std::{time::SystemTime};
 use std::fs;
 
 use serde::{Serialize};
@@ -15,13 +16,37 @@ use chrono::naive::NaiveDateTime;
 struct Content {
     title: String,
     date: String,
-    content: String,
+    content: Option<String>,
 }
 
-#[get("/")]
-fn start() -> Option<Template> {
+#[derive(Serialize)]
+struct Item {
+    title: String,
+    date: String
+}
 
-    let markdown = match fs::read_to_string("public/index") {
+#[derive(Serialize)]
+struct ContentDir {
+    title: String,
+    items: Vec<Item>
+}
+
+fn get_date(path: &str) -> String {
+    let seconds = fs::metadata(path).unwrap()
+    .modified().unwrap_or(SystemTime::now())
+    .duration_since(SystemTime::UNIX_EPOCH).unwrap()
+    .as_secs().try_into().unwrap();
+
+    NaiveDateTime::from_timestamp(seconds, 0)
+    .format("%Y-%m-%d").to_string()
+}
+
+
+// specific start page
+#[get("/")]
+fn start_page() -> Option<Template> {
+
+    let markdown = match fs::read_to_string("public/start") {
         Ok(markdown) => markdown,
         Err(_e) => return None,
     };
@@ -29,38 +54,54 @@ fn start() -> Option<Template> {
     let context = Content {
         title: format!("TODO: remove this"),
         date: format!("TODO remove this"),
-        content: markdown::to_html(&markdown),
+        content: Some(markdown::to_html(&markdown)),
     };
 
-    Some(Template::render("index", &context))
+    Some(Template::render("content", &context))
 }
 
-#[get("/<name..>")]
-fn get_content(name: PathBuf) -> Option<Template> {
-    
-    let file_name : &str = name.to_str().unwrap();
-    let file_name = format!("{}{}", "public/content/", file_name);
+#[get("/<dir>")]
+fn get_content_dir(dir: String) -> Option<Template> {
 
-    let markdown = match fs::read_to_string(&file_name) {
+    let path = format!("public/content/{}", dir);
+
+    let mut base = ContentDir {
+        title: dir,
+        items: vec![],
+    };
+
+    for entry in fs::read_dir(path).unwrap() {
+        if let Ok(entry) = entry {
+
+            let item = Item {
+                title: entry.file_name().to_str().unwrap().to_string(),
+                date: get_date(entry.path().to_str().unwrap()),
+            };
+            
+            base.items.push(item);
+        }
+    }
+
+    Some(Template::render("content-dir", &base))
+}
+
+#[get("/<dir>/<name>")]
+fn get_content(dir: String, name: String) -> Option<Template> {
+
+    let path = format!("public/content/{}/{}", dir, name);
+
+    let markdown = match fs::read_to_string(&path) {
         Ok(markdown) => markdown,
         Err(_e) => return None,
     };
 
-    let seconds = fs::metadata(&file_name).unwrap()
-        .modified().unwrap_or(SystemTime::now())
-        .duration_since(SystemTime::UNIX_EPOCH).unwrap()
-        .as_secs().try_into().unwrap();
-    
-    let date = NaiveDateTime::from_timestamp(seconds, 0)
-        .format("%Y-%m-%d").to_string();
-
     let context = Content {
         title: format!("TODO: Some title"),
-        date,
-        content: markdown::to_html(&markdown),
+        date: get_date(&path),
+        content: Some(markdown::to_html(&markdown)),
     };
 
-    Some(Template::render("index", &context))
+    Some(Template::render("content", &context))
 }
 
 #[catch(404)]
@@ -68,7 +109,7 @@ pub fn not_found(req: &Request<'_>) -> Template {
     let context = Content {
         title: format!("TODO: Some error title"),
         date: format!("TODO: some date (turn this into option)"),
-        content: req.to_string(),
+        content: Some(req.to_string()),
     };
     Template::render("error/404", &context)
 }
@@ -78,7 +119,7 @@ pub fn not_found(req: &Request<'_>) -> Template {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![start, get_content])
+        .mount("/", routes![start_page, get_content, get_content_dir])
         .register("/", catchers![not_found])
         .attach(Template::fairing())
 }
@@ -102,13 +143,3 @@ fn rocket() -> _ {
 
 
 
-
-// #[get("/<file_name>")]
-// fn index(name: PathBuf) -> String {
-//     let content = match fs::read_to_string(name.to_str().unwrap()) {
-//         Ok(content) => content,
-//         Err(_e) => format!("# error"),
-//     };
-//     let html : String = markdown::to_html(&content);
-//     html
-// }
