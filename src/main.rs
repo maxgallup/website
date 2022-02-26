@@ -42,7 +42,7 @@ fn get_date(path: &str) -> String {
 }
 
 
-// specific start page
+// --- START PAGE --- 
 #[get("/")]
 fn start_page() -> Option<Template> {
 
@@ -60,6 +60,7 @@ fn start_page() -> Option<Template> {
     Some(Template::render("content", &context))
 }
 
+// --- CONTENT DIRECTORIES ---
 #[get("/<dir>")]
 fn get_content_dir(dir: String) -> Option<Template> {
 
@@ -70,7 +71,12 @@ fn get_content_dir(dir: String) -> Option<Template> {
         items: vec![],
     };
 
-    for entry in fs::read_dir(path).unwrap() {
+    let entries = match fs::read_dir(path) {
+        Ok(x) => x,
+        Err(_e) => return None,
+    };
+
+    for entry in entries {
         if let Ok(entry) = entry {
 
             let item = Item {
@@ -80,7 +86,7 @@ fn get_content_dir(dir: String) -> Option<Template> {
             
             base.items.push(item);
         }
-    }
+    };
 
     Some(Template::render("content-dir", &base))
 }
