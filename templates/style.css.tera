@@ -1,0 +1,187 @@
+<style>
+
+    @font-face {
+        font-family: 'bold';
+        src: url('/ProximaNovaRegular.otf');
+    }
+    @font-face {
+        font-family: 'regular';
+        src: url('/ProximaNovaThin.otf');
+    }
+        
+    
+    :root {
+        --font-code: 'Courier New', Courier, monospace;
+        /* --font-fam: Verdana, sans-serif; */
+        /* --font-fam: 'mainFont'; */
+        --font-fam-bold: 'bold';
+        --font-fam-regular: 'regular';
+        --backrgound-color: white;
+        --font-color: rgb(202, 219, 223);
+        --nav-color: #74F2CE;
+        --nav-font-color: #232B32;
+        --code-background-color: #303941;
+        --footer-color:  rgb(235, 240, 240);
+        --card-background-color: rgb(227, 227, 227);
+    }
+
+    * {
+        padding: 0;
+        margin: 0;
+        background-origin: border-box;
+        font-family: 'regular';
+    }
+
+    h1, h2, h3, h4 {
+        font-family: 'bold';
+    }
+
+    button {
+        font-size: 1.5rem;
+        background-color: var(--nav-color);
+        border-radius: 5px;
+        border: none;
+        color:var(--nav-font-color);
+        position: fixed;
+        top: 1vh;
+        right: 2vh;
+        padding: 0.5rem;
+        transition: transform 0.3s ease-in-out;
+        z-index: 1;
+    }
+
+
+
+    nav {
+        position: fixed;
+        top: 0;
+        right: 0;
+        background-color:var(--nav-color);
+        height: 100vh;
+        width: 65vw;
+        transform: translateX(150%);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    nav.active {
+        transform: translateX(0);
+    }
+
+    #navlist {
+        list-style-type: none;
+        margin-top: 8vh;
+        margin-left: 2vw;
+        margin-right: auto;
+        font-size: 2.5rem;
+    }
+    #navlist li {
+        padding-top: 2vh;
+        padding-bottom: 2vh;
+    }
+
+    #navlist a {
+        color:var(--nav-font-color);
+        text-decoration: none;
+        font-family: 'bold';
+    }
+
+    #navlist a:hover {
+        color: white;
+    }
+
+
+    .card {
+        padding: 1rem 1rem;
+        background-color: var(--card-background-color);
+        border-radius: 0.2rem;
+        margin: 4vh 4vw;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        overflow: auto;
+        font-size: 1.2rem;
+    }
+
+    .card li a {
+        /* color: rgb(60, 82, 124); */
+        color: #287972;
+        text-decoration: none;
+        font-family: 'bold';
+    }
+
+    .card li a:hover {
+        /* color:rgb(106, 136, 155); */
+        color: #4b9e97;
+        text-decoration: none;
+    }
+    
+
+    footer div {
+        text-align: center;
+        background-color: var(--footer-color);
+        font-size: 1.6rem;
+        padding: 4vh;
+    }
+
+    footer div a {
+        color: rgb(40, 54, 80);
+        text-decoration: none;
+    }
+
+    footer div a:hover {
+        color:rgb(106, 136, 155);
+        text-decoration: none;
+    }
+
+    
+
+    main {
+        min-height: 85vh;
+    }
+
+    code {
+        font-family: var(--font-code);
+    }
+
+    .sourceCode {
+        background-color: var(--code-background-color);
+        color: white;
+        overflow: auto;
+        border-radius: 5px;
+        font-family: var(--font-code);
+    }
+    .sourceCode span,
+    .sourceCode a {
+        font-family: var(--font-code);
+    }
+
+    li {
+        margin-left: 2.5rem;
+    }
+
+    /* Mobile - Phone Media Query*/
+    @media only screen and (min-width: 402px){
+        nav {
+            width: 50vw;
+        }
+    }
+
+    /* Ipad and Tablet Media Query */
+    @media only screen and (min-width: 496px){
+        .card {
+            max-width: 80vw;
+            margin-left: 10vw;
+            margin-right: 10vw;
+        }
+        nav {
+            width: 39vw;
+        }
+    }
+
+    /* Computer Desktop Media Query */
+    @media only screen and (min-width: 850px){
+        .card {
+            max-width: 72vw;
+            margin-left: 14vw;
+            margin-right: 14vw;
+        }
+    }
+</style>

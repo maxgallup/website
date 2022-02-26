@@ -15,6 +15,8 @@ use serde::{Serialize};
 use chrono::naive::NaiveDateTime;
 
 
+
+
 #[derive(Serialize)]
 struct Content {
     title: Option<String>,
@@ -56,6 +58,24 @@ fn start_page() -> Option<Template> {
 
     let context = Content {
         title: Some("@maxgallup".to_string()),
+        date: None,
+        content: Some(markdown::to_html(&markdown)),
+    };
+
+    Some(Template::render("content", &context))
+}
+
+// --- VEGAN PAGE --- 
+#[get("/isitvegan")]
+fn vegan_page() -> Option<Template> {
+
+    let markdown = match fs::read_to_string("public/isitvegan") {
+        Ok(markdown) => markdown,
+        Err(_e) => return None,
+    };
+
+    let context = Content {
+        title: Some("Is it vegan?".to_string()),
         date: None,
         content: Some(markdown::to_html(&markdown)),
     };
@@ -120,6 +140,18 @@ fn get_content(dir: String, name: String) -> Option<Template> {
     Some(Template::render("content", &context))
 }
 
+// --- FONTS ---
+#[get("/ProximaNovaThin.otf")]
+async fn font1() -> Option<NamedFile> {
+    NamedFile::open(Path::new("public/fonts/ProximaNovaThin.otf")).await.ok()
+}
+
+#[get("/ProximaNovaRegular.otf")]
+async fn font2() -> Option<NamedFile> {
+    NamedFile::open(Path::new("public/fonts/ProximaNovaRegular.otf")).await.ok()
+}
+
+
 #[catch(404)]
 pub fn not_found(req: &Request<'_>) -> Template {
 
@@ -137,7 +169,8 @@ pub fn not_found(req: &Request<'_>) -> Template {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![start_page, cv_page, get_content, get_content_dir])
+        .mount("/", routes![start_page, cv_page, vegan_page,
+        get_content, get_content_dir, font1, font2])
         .register("/", catchers![not_found])
         .attach(Template::fairing())
 }

@@ -2,8 +2,8 @@
 
 {% block content %}
 
-  <h1>404: Hey! There's nothing here.</h1>
-  <p> The page at {{ content }} does not exist! </p>
-
+  <h1>404!</h1>
+  <p>The page at {{ content }} does not exist!</p>
+  <p>Go back <a href="/">home</a>?</p>
 
 {% endblock content %}

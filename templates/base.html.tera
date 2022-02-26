@@ -6,21 +6,67 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow, noimageindex, nosnippet, nocache, noarchive">
-    <link rel="stylesheet" href="style.css">
+
+    {% include "style" %}
+
+
+    <script>
+      window.onload = () => {
+        listenNavBar();
+      }
+      function listenNavBar() {
+        burger.addEventListener("click", () => {
+          nav.classList.toggle("active");
+          burger.classList.toggle("active");
+          if(burger.classList.contains("active")){
+              burger.textContent = "X";
+          } else {
+              burger.textContent = "☰";
+          }
+        });
+      }
+    </script>
 
     <title>{{ title }}</title>
+
 
   </head>
 
   <body>
-    {% include "nav" %}
+    <button id="burger" class="navitem" href="#">☰</button>
+    <nav id="nav">
+        <ul id="navlist" class="navitem">
+            <li class="navitem" ><a href="/" id="home">home</a></li>
+            <li class="navitem" ><a href="/articles" id="articles">articles</a></li>
+            <li class="navitem" ><a href="/recipes" id="recipes">recipes</a></li>
+            <li class="navitem" ><a href="/projects" id="recipes">projects</a></li>
+            <li class="navitem" ><a href="/isitvegan" id="isitvegan">plants?</a></li>
+            <li class="navitem"><a href="https://github.com/maxgallup/" target="_blank">github</a></li>
+        </ul>
+    </nav>
 
-    {% block content %}{% endblock content %}
+
+    <main>
+      <div class="card">
+        {% block content %}{% endblock content %}
+      </div>
+    </main>
+
+
+
+
+
 
   </body>
 
   <footer>
-    <a href="/">Home</a>
-  </footer>
+        <div>
+            <span>
+                <a href="https://github.com/maxgallup" target="_blank"> github </a>
+                <span> | </span>
+                <a href="https://www.linkedin.com/in/max-gallup-7b4481210"> linkedIn </a>
+            </span>
+        </div>
+    </footer>
 
 </html>
