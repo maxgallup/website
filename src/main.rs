@@ -4,6 +4,7 @@
 use std::{time::SystemTime};
 use std::fs;
 use std::path::Path;
+use std::io::{BufRead, BufReader};
 
 
 use rocket_dyn_templates::{Template};
@@ -13,7 +14,6 @@ use rocket::fs::NamedFile;
 use serde::{Serialize};
 
 use chrono::naive::NaiveDateTime;
-
 
 
 
@@ -27,6 +27,7 @@ struct Content {
 #[derive(Serialize)]
 struct Item {
     title: String,
+    link: String,
     date: String
 }
 
@@ -45,6 +46,29 @@ fn get_date(path: &str) -> String {
     NaiveDateTime::from_timestamp(seconds, 0)
     .format("%d-%m-%Y").to_string()
 }
+
+
+fn get_title(path: &str) -> Option<String> {
+
+    let file = match fs::File::open(path) {
+        Ok(file) => file,
+        Err(_) => return None,
+    };
+
+    let mut buffer = BufReader::new(file);
+
+    let mut first_line = String::new();
+    buffer.read_line(&mut first_line).expect("unable to read line");
+
+    let last_hash = first_line
+        .char_indices()
+        .skip_while(|&(_, c)| c == '#')
+        .next()
+        .map_or(0, |(idx, _)| idx);
+
+    Some(first_line[last_hash..].trim().into())
+}
+
 
 
 // --- START PAGE --- 
@@ -115,8 +139,14 @@ fn get_content_dir(dir: String) -> Option<Template> {
     for entry in entries {
         if let Ok(entry) = entry {
 
+            let title = match get_title(entry.path().to_str().unwrap()) {
+                Some(s) => s,
+                None => return None,
+            };
+
             let item = Item {
-                title: entry.file_name().to_str().unwrap().to_string(),
+                title: title,
+                link: entry.file_name().to_str().unwrap().to_string(),
                 date: get_date(entry.path().to_str().unwrap()),
             };
             
