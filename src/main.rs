@@ -89,6 +89,13 @@ async fn cv_page() -> Option<NamedFile> {
     NamedFile::open(Path::new("public/cv.pdf")).await.ok()
 }
 
+// --- MEDIA ---
+#[get("/media/<name>")]
+async fn media(name: &str) -> Option<NamedFile> {
+    let path = format!("public/media/{}", name);
+    NamedFile::open(Path::new(&path)).await.ok()
+}
+
 // --- CONTENT DIRECTORIES ---
 #[get("/<dir>")]
 fn get_content_dir(dir: String) -> Option<Template> {
@@ -170,7 +177,7 @@ pub fn not_found(req: &Request<'_>) -> Template {
 fn rocket() -> _ {
     rocket::build()
         .mount("/", routes![start_page, cv_page, vegan_page,
-        get_content, get_content_dir, font1, font2])
+        get_content, get_content_dir, font1, font2, media])
         .register("/", catchers![not_found])
         .attach(Template::fairing())
 }

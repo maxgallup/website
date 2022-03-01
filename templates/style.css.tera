@@ -8,7 +8,7 @@
         font-family: 'regular';
         src: url('/ProximaNovaThin.otf');
     }
-        
+
     
     :root {
         --font-code: 'Courier New', Courier, monospace;
@@ -33,6 +33,10 @@
         background-origin: border-box;
         font-family: 'regular';
         
+    }
+
+    img {
+        width: 100%;
     }
 
     body {
