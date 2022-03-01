@@ -1,0 +1,38 @@
+<script>
+window.onload = () => {
+    listenNavBar();
+    document.querySelectorAll("pre").forEach(item => {
+        item.addEventListener("click", event => {
+            copyText(event);
+        })
+    })
+
+}
+
+function listenNavBar() {
+    burger.addEventListener("click", () => {
+        nav.classList.toggle("active");
+        burger.classList.toggle("active");
+        if(burger.classList.contains("active")){
+            burger.textContent = "X";
+        } else {
+            burger.textContent = "☰";
+        }
+    });
+}
+
+function copyText(event) {
+    parent = event.target
+    navigator.clipboard.writeText(parent.textContent);
+    var newElement = document.createElement("span");
+    var text = document.createTextNode(" Copied!");
+    newElement.appendChild(text);
+    newElement.setAttribute("class", "copied");
+    parent.appendChild(newElement);
+
+    setTimeout(function() {
+        parent.removeChild(parent.lastChild);
+    }, 1000);
+
+}
+</script>
