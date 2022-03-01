@@ -13,6 +13,12 @@
     <script>
       window.onload = () => {
         listenNavBar();
+        document.querySelectorAll("pre").forEach(item => {
+          item.addEventListener("click", event => {
+              copyText(event);
+          })
+        })
+        
       }
       function listenNavBar() {
         burger.addEventListener("click", () => {
@@ -24,6 +30,23 @@
               burger.textContent = "☰";
           }
         });
+      }
+
+      
+
+      function copyText(event) {
+        parent = event.target
+        navigator.clipboard.writeText(parent.textContent);
+        var newElement = document.createElement("span");
+        var text = document.createTextNode("Copied!");
+        newElement.appendChild(text);
+        newElement.setAttribute("class", "copied");
+        parent.prepend(newElement);
+
+        setTimeout(function() {
+          parent.removeChild(parent.firstChild);
+        }, 2500);
+        
       }
     </script>
 

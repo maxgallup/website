@@ -20,11 +20,12 @@
         --font-color: #E8E6E3;
         --nav-color: #0C8269;
         --nav-font-color: #E8E6E3;
-        --code-background-color: #181A1B;
+        --code-background-color: #181c19;
         --footer-color:  #1F2929;
         --card-background-color: #282B2D;
         --hover-color: #57F2C6;
         --link-color: #A1F4FC;
+        --accent-color: #2e4042;
     }
 
     * {
@@ -112,7 +113,7 @@
     .card {
         padding: 1rem 1rem;
         background-color: var(--card-background-color);
-        border-radius: 0.2rem;
+        border-radius: 0.4rem;
         margin: 4vh 4vw;
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         overflow: auto;
@@ -155,8 +156,33 @@
         min-height: 85vh;
     }
 
+    pre {
+        background: var(--code-background-color);
+        padding: 0.5rem;
+        margin: 0.5rem;
+        border-radius: 0.5rem;
+        border-style: solid;
+        border-color: var(--background-color);
+        display: inline-block;
+        transition: 0.3s;
+    }
+
+    pre:hover {
+        border-style: solid;
+        border-color: var(--accent-color);
+        cursor: copy;
+    }
+
+    .copied {
+        position: relative;
+        top: 0px;
+        left: 0;
+        color: red;
+    }
+
     code {
         font-family: var(--font-code);
+        font-size: 0.8rem;
     }
 
     .sourceCode {

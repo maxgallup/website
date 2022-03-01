@@ -1,11 +1,13 @@
-# How to make this Blog yourself - EJS, Express and Shell  
-
+# Simple Javascript Blog  - EJS, Express and Shell  
+  
 The goal of this project is to create a simple static markdown blog with ejs, express and some shell scripting. As the blog writer, you will write blog posts in markdown which will the be converted into HTML using shell scripting. The blog posts will then be displayed on their own page and separately, as a collection under a "Posts" page where you will see the title and date of the post. All functionality perviously described will be implemented in node js within a `server.js` file and a `updateblog.sh` script which will have to be run manually by the Blogger when updating/writing blogs on the host machine. This tutorial will only focus on blog content, and not styling.
+
+  
 
 ### EJS
 Using templates with javascript will allow us to have a single `index.ejs` page with a common title, navigation bar and/or footer. Then every endpoint like the individual posts or the home page will include just those specific HTML elements in their respective `.ejs` files. All templates, including `index.ejs` will be stored inside of a `views` directory. Inside of which all specific endpoints will be stored under the `partials` directory and within that all specific posts will be stored under `posts`.
 
-<br>
+  
 
 ### Express Routing and Rendering
 Every endpoint renders the `index.ejs` file with a given object passing along the name of the content that should be displayed on every given page. In the example below, we are passing a `{view: 'posts'}` which will be accepted within the body of the `index.ejs` file. Effectively copying the contents of `posts.ejs` into the body of `index.ejs`.
@@ -22,13 +24,12 @@ app.get('/posts', (req, res) => {
     ...
 </body>
 ```
-
-<br>
+  
 
 ### Shell Scripting
-Updating the page with the appropriate post, and the updating the "Posts" page is done using a shell script. It first looks at all md files in the posts folder and stores their titles and dates which by convention are on the first and second line of every markdown file. It also stored the filename of the post, in order to link to it with an `<a>` tag. 
+Updating the page with the appropriate post, and the updating the "Posts" page is done using a shell script. It first looks at all md files in the posts folder and stores their titles and dates which by convention are on the first and second line of every markdown file. It also stored the filename of the post, in order to link to it with an `<a>` tag.
 
-<br>
+  
 
 ### Creating or Updating posts
 In order to easily and efficiently write blog posts, they need to be converted to HTML from Markdown. We will save all posts written in markdown in a `blog/posts` directory that is placed in the same project directory as the rest of the code and then store the converted HTML/EJS files in `blog/views/partials/posts`. Converting from markdown to HTML will be done using the command line tool [pandoc](https://pandoc.org/MANUAL.html). A short shell script will automate the conversion process for us so that all of the markdown files will always be converted into the `blog/views/partials/posts` directory. When we are done writing a blog and we are currently in the post in the `blog/posts` directory, we can just run the shell script and it will do all of the converting and moving for us.
@@ -73,12 +74,12 @@ createPostsPage
 
 Firstly, we create three arrays which will contain the title, date and filename of each post.The first line inside of `convertMdtoHtml` checks to see if there are any files that end in `.md`. If there are, we create `newEjsFile` that holds the name of the file and swaps `.md` for `.ejs`, see [sed command](https://www.howtogeek.com/666395/how-to-use-the-sed-command-on-linux/). Then we parse the file to append the appropriate text content into the previously created arrays. On the next line `pandoc` converts from markdown to html and we specify the name of the output file with the previously created variable. Finally, the file needs to be moved into the `.../partials/posts` directory, which is given by and absolute path. Saving the shell script above as root into the `/usr/bin` directory on linux machines, allows you to run the script anywhere on your machine simply by typing its name into the command line, for example `convertmd`.
 
-<br>
+  
 
 ### Posts page
 The aim of the posts page is to display a collection of all posts with date and title information. Additionally the titles should be clickable links to the full posts. The shell script generates this page dynamically based on the posts. Looking into `createPostsPage` we simply write html line by line and loop through all available posts for the collection of posts.
 
-<br>
+  
 
 ### Deployment 
 One can create a docker image with the given Dockerfile. Important thing to note here is to install nodemon in order for the server to restart whenever a post has been added. Additionally when running the container be sure to use `-v $(pwd):/app` in order to map the blog directory (assuming you are currently inside of it) to the `/app` inside of the container. Otherwise expose whatever port you want on your host to 8080 in node `-p xxxx:8080`.
