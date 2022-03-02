@@ -1,9 +1,0 @@
-{% extends "base" %}
-
-{% block content %}
-
-  <h1>404!</h1>
-  <p>The page at {{ content }} does not exist!</p>
-  <p>Go back <a href="/">home</a>?</p>
-
-{% endblock content %}
