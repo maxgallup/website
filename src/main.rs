@@ -188,18 +188,15 @@ async fn font2() -> Option<NamedFile> {
     NamedFile::open(Path::new("public/fonts/ProximaNovaRegular.otf")).await.ok()
 }
 
+
+// --- UPDATE
 #[get("/update")]
 fn update() -> Option<Template> {
 
-    let output = match Command::new("git").arg("pull").output() {
+    let _output = match Command::new("git").arg("pull").output() {
         Ok(x) => x,
         Err(_) => return None,
     };
-        
-    
-    println!(">>>>>>>> stdout:{}", String::from_utf8_lossy(&output.stdout));
-    println!(">>>>>>>> stderr:{}", String::from_utf8_lossy(&output.stderr));
-    println!(">>>>>>>> Status:{}", output.status);
 
     let context = Content {
         title: Some(format!("Success!")),
