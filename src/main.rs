@@ -5,7 +5,7 @@ use std::{time::SystemTime};
 use std::fs;
 use std::path::Path;
 use std::io::{BufRead, BufReader};
-
+use std::process::Command;
 
 use rocket_dyn_templates::{Template};
 use rocket::Request;
@@ -188,6 +188,27 @@ async fn font2() -> Option<NamedFile> {
     NamedFile::open(Path::new("public/fonts/ProximaNovaRegular.otf")).await.ok()
 }
 
+#[get("/update")]
+fn update() -> Option<Template> {
+
+    let output = match Command::new("git").arg("pull").output() {
+        Ok(x) => x,
+        Err(_) => return None,
+    };
+        
+    
+    println!(">>>>>>>> stdout:{}", String::from_utf8_lossy(&output.stdout));
+    println!(">>>>>>>> stderr:{}", String::from_utf8_lossy(&output.stderr));
+    println!(">>>>>>>> Status:{}", output.status);
+
+    let context = Content {
+        title: Some(format!("Success!")),
+        date: None,
+        content: None,
+    };
+
+    Some(Template::render("content", &context))
+}
 
 #[catch(404)]
 pub fn not_found(req: &Request<'_>) -> Template {
@@ -207,7 +228,7 @@ pub fn not_found(req: &Request<'_>) -> Template {
 fn rocket() -> _ {
     rocket::build()
         .mount("/", routes![start_page, cv_page, vegan_page,
-        get_content, get_content_dir, font1, font2, media])
+        get_content, get_content_dir, font1, font2, media, update])
         .register("/", catchers![not_found])
         .attach(Template::fairing())
 }
