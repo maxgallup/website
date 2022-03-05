@@ -14,7 +14,12 @@ use serde::{Serialize};
 
 use chrono::naive::NaiveDateTime;
 
-
+#[derive(Serialize)]
+struct StartPage {
+    title: Option<String>,
+    intro: Option<String>,
+    cards: Vec<ContentDir>,
+}
 
 #[derive(Serialize)]
 struct Content {
@@ -68,6 +73,40 @@ fn get_title(path: &str) -> Option<String> {
     Some(first_line[last_hash..].trim().into())
 }
 
+fn generate_content_dir(path: &str) -> Option<ContentDir> {
+
+    let full_path = format!("public/content/{}", path);
+
+    let mut base = ContentDir {
+        title: path.to_string(),
+        items: vec![],
+    };
+
+    let entries = match fs::read_dir(full_path) {
+        Ok(x) => x,
+        Err(_e) => return None,
+    };
+
+    for entry in entries {
+        if let Ok(entry) = entry {
+
+            let title = match get_title(entry.path().to_str().unwrap()) {
+                Some(s) => s,
+                None => return None,
+            };
+
+            let item = Item {
+                title: title,
+                link: entry.file_name().to_str().unwrap().to_string(),
+                date: get_date(entry.path().to_str().unwrap()),
+            };
+            
+            base.items.push(item);
+        }
+    };
+    Some(base)
+}
+
 
 
 // --- START PAGE --- 
@@ -79,13 +118,32 @@ fn start_page() -> Option<Template> {
         Err(_e) => return None,
     };
 
-    let context = Content {
-        title: Some("@maxgallup".to_string()),
-        date: None,
-        content: Some(markdown::to_html(&markdown)),
+    let mut cards_vec: Vec<ContentDir> = vec![];
+
+    let entries = match fs::read_dir("public/content") {
+        Ok(x) => x,
+        Err(_e) => return None,
     };
 
-    Some(Template::render("content", &context))
+    for entry in entries {
+        if let Ok(entry) = entry {
+            if entry.path().is_dir() {
+                let temp = match generate_content_dir(entry.file_name().to_str().unwrap()) {
+                    Some(x) => x,
+                    None => return None,
+                };
+                cards_vec.push(temp);
+            }
+        }
+    }
+
+    let context = StartPage {
+        title: Some("@maxgallup".to_string()),
+        intro: Some(markdown::to_html(&markdown)),
+        cards: cards_vec,
+    };
+
+    Some(Template::render("start", &context))
 }
 
 // --- VEGAN PAGE --- 
@@ -122,35 +180,9 @@ async fn media(name: &str) -> Option<NamedFile> {
 // --- CONTENT DIRECTORIES ---
 #[get("/<dir>")]
 fn get_content_dir(dir: String) -> Option<Template> {
-
-    let path = format!("public/content/{}", dir);
-
-    let mut base = ContentDir {
-        title: dir,
-        items: vec![],
-    };
-
-    let entries = match fs::read_dir(path) {
-        Ok(x) => x,
-        Err(_e) => return None,
-    };
-
-    for entry in entries {
-        if let Ok(entry) = entry {
-
-            let title = match get_title(entry.path().to_str().unwrap()) {
-                Some(s) => s,
-                None => return None,
-            };
-
-            let item = Item {
-                title: title,
-                link: entry.file_name().to_str().unwrap().to_string(),
-                date: get_date(entry.path().to_str().unwrap()),
-            };
-            
-            base.items.push(item);
-        }
+    let base = match generate_content_dir(&dir) {
+        Some(x) => x,
+        None => return None,
     };
 
     Some(Template::render("content-dir", &base))
