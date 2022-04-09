@@ -1,4 +1,4 @@
-FROM rust:latest
+FROM rust:latest AS builder
 
 WORKDIR /website
 
@@ -6,6 +6,15 @@ COPY . /website
 
 RUN cargo build --release
 
-EXPOSE 8000
 
-CMD cargo run --release
+FROM debian:latest
+WORKDIR /app
+COPY --from=builder /website/target/release/website .
+
+EXPOSE 8000
+ENV ROCKET_ADDRESS=0.0.0.0
+
+CMD ["./website"]
+
+
+
