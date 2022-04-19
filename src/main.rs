@@ -8,7 +8,7 @@ use std::io::{BufRead, BufReader};
 
 use rocket_dyn_templates::{Template};
 use rocket::Request;
-use rocket::fs::NamedFile;
+use rocket::fs::{NamedFile};
 
 use serde::{Serialize};
 
@@ -146,29 +146,25 @@ fn start_page() -> Option<Template> {
     Some(Template::render("start", &context))
 }
 
-// --- VEGAN PAGE --- 
-#[get("/isitvegan")]
-fn vegan_page() -> Option<Template> {
+fn generate_home_content(name: &String) -> Option<Template> {
 
-    let markdown = match fs::read_to_string("public/isitvegan") {
+    let path = format!("public/{}", name);
+
+    let markdown = match fs::read_to_string(&path) {
         Ok(markdown) => markdown,
         Err(_e) => return None,
     };
 
     let context = Content {
-        title: Some("Is it vegan?".to_string()),
-        date: None,
+        title: Some(format!("{}", name)),
+        date: Some(get_date(&path)),
         content: Some(markdown::to_html(&markdown)),
     };
 
     Some(Template::render("content", &context))
 }
 
-// --- CV PAGE ---
-#[get("/cv")]
-async fn cv_page() -> Option<NamedFile> {
-    NamedFile::open(Path::new("public/cv.pdf")).await.ok()
-}
+
 
 // --- MEDIA ---
 #[get("/media/<name>")]
@@ -182,7 +178,7 @@ async fn media(name: &str) -> Option<NamedFile> {
 fn get_content_dir(dir: String) -> Option<Template> {
     let base = match generate_content_dir(&dir) {
         Some(x) => x,
-        None => return None,
+        None => return generate_home_content(&dir),
     };
 
     Some(Template::render("content-dir", &base))
@@ -219,6 +215,12 @@ async fn font2() -> Option<NamedFile> {
     NamedFile::open(Path::new("public/fonts/ProximaNovaRegular.otf")).await.ok()
 }
 
+// --- CV PAGE ---
+#[get("/cv")]
+async fn cv_page() -> Option<NamedFile> {
+    NamedFile::open(Path::new("public/cv.pdf")).await.ok()
+}
+
 #[catch(404)]
 pub fn not_found(req: &Request<'_>) -> Template {
 
@@ -236,8 +238,9 @@ pub fn not_found(req: &Request<'_>) -> Template {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![start_page, cv_page, vegan_page,
+        .mount("/", routes![start_page, cv_page,
         get_content, get_content_dir, font1, font2, media])
+        .mount("/start", routes![start_page])
         .register("/", catchers![not_found])
         .attach(Template::fairing())
 }
