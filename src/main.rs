@@ -1,16 +1,16 @@
-#[macro_use] extern crate rocket;
+#[macro_use]
+extern crate rocket;
 
-
-use std::{time::SystemTime};
 use std::fs;
-use std::path::Path;
 use std::io::{BufRead, BufReader};
+use std::path::Path;
+use std::time::SystemTime;
 
-use rocket_dyn_templates::{Template};
+use rocket::fs::NamedFile;
 use rocket::Request;
-use rocket::fs::{NamedFile};
+use rocket_dyn_templates::Template;
 
-use serde::{Serialize};
+use serde::Serialize;
 
 use chrono::naive::NaiveDateTime;
 
@@ -32,28 +32,32 @@ struct Content {
 struct Item {
     title: String,
     link: String,
-    date: String
+    date: String,
 }
 
 #[derive(Serialize)]
 struct ContentDir {
     title: String,
-    items: Vec<Item>
+    items: Vec<Item>,
 }
 
 fn get_date(path: &str) -> String {
-    let seconds = fs::metadata(path).unwrap()
-    .modified().unwrap_or(SystemTime::now())
-    .duration_since(SystemTime::UNIX_EPOCH).unwrap()
-    .as_secs().try_into().unwrap();
+    let seconds = fs::metadata(path)
+        .unwrap()
+        .modified()
+        .unwrap_or(SystemTime::now())
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap()
+        .as_secs()
+        .try_into()
+        .unwrap();
 
     NaiveDateTime::from_timestamp(seconds, 0)
-    .format("%d-%m-%Y").to_string()
+        .format("%d-%m-%Y")
+        .to_string()
 }
 
-
 fn get_title(path: &str) -> Option<String> {
-
     let file = match fs::File::open(path) {
         Ok(file) => file,
         Err(_) => return None,
@@ -62,7 +66,9 @@ fn get_title(path: &str) -> Option<String> {
     let mut buffer = BufReader::new(file);
 
     let mut first_line = String::new();
-    buffer.read_line(&mut first_line).expect("unable to read line");
+    buffer
+        .read_line(&mut first_line)
+        .expect("unable to read line");
 
     let last_hash = first_line
         .char_indices()
@@ -74,7 +80,6 @@ fn get_title(path: &str) -> Option<String> {
 }
 
 fn generate_content_dir(path: &str) -> Option<ContentDir> {
-
     let full_path = format!("public/content/{}", path);
 
     let mut base = ContentDir {
@@ -89,7 +94,6 @@ fn generate_content_dir(path: &str) -> Option<ContentDir> {
 
     for entry in entries {
         if let Ok(entry) = entry {
-
             let title = match get_title(entry.path().to_str().unwrap()) {
                 Some(s) => s,
                 None => return None,
@@ -100,19 +104,16 @@ fn generate_content_dir(path: &str) -> Option<ContentDir> {
                 link: entry.file_name().to_str().unwrap().to_string(),
                 date: get_date(entry.path().to_str().unwrap()),
             };
-            
+
             base.items.push(item);
         }
-    };
+    }
     Some(base)
 }
 
-
-
-// --- START PAGE --- 
+// --- START PAGE ---
 #[get("/")]
 fn start_page() -> Option<Template> {
-
     let markdown = match fs::read_to_string("public/start") {
         Ok(markdown) => markdown,
         Err(_e) => return None,
@@ -147,7 +148,6 @@ fn start_page() -> Option<Template> {
 }
 
 fn generate_home_content(name: &String) -> Option<Template> {
-
     let path = format!("public/{}", name);
 
     let markdown = match fs::read_to_string(&path) {
@@ -163,8 +163,6 @@ fn generate_home_content(name: &String) -> Option<Template> {
 
     Some(Template::render("content", &context))
 }
-
-
 
 // --- MEDIA ---
 #[get("/media/<name>")]
@@ -187,7 +185,6 @@ fn get_content_dir(dir: String) -> Option<Template> {
 // --- CONTENT ---
 #[get("/<dir>/<name>")]
 fn get_content(dir: String, name: String) -> Option<Template> {
-
     let path = format!("public/content/{}/{}", dir, name);
 
     let markdown = match fs::read_to_string(&path) {
@@ -207,12 +204,16 @@ fn get_content(dir: String, name: String) -> Option<Template> {
 // --- FONTS ---
 #[get("/ProximaNovaThin.otf")]
 async fn font1() -> Option<NamedFile> {
-    NamedFile::open(Path::new("public/fonts/ProximaNovaThin.otf")).await.ok()
+    NamedFile::open(Path::new("public/fonts/ProximaNovaThin.otf"))
+        .await
+        .ok()
 }
 
 #[get("/ProximaNovaRegular.otf")]
 async fn font2() -> Option<NamedFile> {
-    NamedFile::open(Path::new("public/fonts/ProximaNovaRegular.otf")).await.ok()
+    NamedFile::open(Path::new("public/fonts/ProximaNovaRegular.otf"))
+        .await
+        .ok()
 }
 
 // --- CV PAGE ---
@@ -223,7 +224,6 @@ async fn cv_page() -> Option<NamedFile> {
 
 #[catch(404)]
 pub fn not_found(req: &Request<'_>) -> Template {
-
     let context = Content {
         title: Some("404 - Not Found".to_string()),
         date: None,
@@ -233,13 +233,21 @@ pub fn not_found(req: &Request<'_>) -> Template {
     Template::render("404", &context)
 }
 
-
-
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![start_page, cv_page,
-        get_content, get_content_dir, font1, font2, media])
+        .mount(
+            "/",
+            routes![
+                start_page,
+                cv_page,
+                get_content,
+                get_content_dir,
+                font1,
+                font2,
+                media,
+            ],
+        )
         .mount("/start", routes![start_page])
         .register("/", catchers![not_found])
         .attach(Template::fairing())
